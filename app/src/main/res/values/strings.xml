@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">BasicTest</string>
+    <string name="search_league_placeholder">Search by league</string>
+    <string name="empty_team_list_message">No items available</string>
+    <string name="loading">Loading...</string>
+    <string name="error_message">An error occurred</string>
+    <string name="restart_error_message">Relaunch the application if the problem persists</string>
+</resources>

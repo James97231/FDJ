@@ -30,7 +30,7 @@ class TeamListViewModelTest {
         Dispatchers.setMain(testDispatcher)
         getAllLeaguesUseCase = mockk()
         getTeamsByLeagueUseCase = mockk()
-        viewModel = TeamListViewModel(getAllLeaguesUseCase, getTeamsByLeagueUseCase)
+        viewModel = TeamListViewModel(getAllLeaguesUseCase, getTeamsByLeagueUseCase,testDispatcher)
     }
 
     @After

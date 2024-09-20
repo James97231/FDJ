@@ -1,7 +1,7 @@
 # BasicTest
 
 ## Description
-Ce projet est un test technique pour un poste de senior developpeur à la francaise des jeux.
+Ce projet est un test technique pour un poste de senior developpeur.
 Il a été pensé mon une base pour une vraie application android.
 Il permet de lister les équipes d'une ligue parmi une liste de ligues selectionnable par un champs text autocompleté.
 Quand une ligue est selectionnée, la liste des équipes de cette ligue est affichée dans une liste comprenant un logo et un texte(nom de l'équipe).

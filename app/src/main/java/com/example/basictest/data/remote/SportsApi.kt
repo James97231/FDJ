@@ -1,5 +1,7 @@
 package com.example.basictest.data.remote
 
+import com.example.basictest.data.model.LeaguesResponse
+import com.example.basictest.data.model.TeamsResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 

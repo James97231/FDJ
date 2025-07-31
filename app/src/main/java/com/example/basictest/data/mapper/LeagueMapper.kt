@@ -1,14 +1,14 @@
 package com.example.basictest.data.mapper
 
-import com.example.basictest.data.remote.LeagueDto
+import com.example.basictest.data.model.LeagueDto
 import com.example.basictest.domain.model.League
 
-object LeagueMapper {
-    // Transforme un LeagueDto en League (du DTO vers le domaine)
-    fun fromDto(dto: LeagueDto): League =
-        League(
-            id = dto.idLeague,
-            name = dto.strLeague,
-            sport = dto.strSport,
-        )
-}
+/**
+ * Extension function to convert LeagueDto to League.
+ */
+fun LeagueDto.toDomain(): League =
+    League(
+        id = idLeague,
+        name = strLeague,
+        sport = strSport,
+    )

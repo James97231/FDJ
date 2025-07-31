@@ -1,6 +1,5 @@
 package com.example.basictest.ui.team
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,10 +17,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.example.basictest.R
 import com.example.basictest.domain.model.Team
 import com.example.basictest.ui.theme.BasicTestTheme
 
@@ -34,7 +36,7 @@ fun TeamBadgeGrid(
         columns = GridCells.Fixed(2),
         modifier = modifier,
         content = {
-            items(teams.size) { index ->
+            items(teams.size, key = { index -> teams[index].id }) { index ->
                 val team = teams[index]
                 TeamBadgeItem(
                     item = team,
@@ -55,8 +57,19 @@ fun TeamBadgeItem(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxSize()) {
-        Image(
-            painter = rememberAsyncImagePainter(model = item.strBadge),
+        // Utilisation de AsyncImage pour charger l'image de l'équipe
+        val imageRequest =
+            ImageRequest
+                .Builder(LocalContext.current)
+                .data(item.strBadge) // L'URL de l'image
+                .crossfade(true) // <-- C'EST LA LIGNE MAGIQUE POUR L'ANIMATION !
+                .crossfade(50) // Optionnel: spécifier la durée de l'animation en millisecondes (ex: 300ms)
+                .placeholder(android.R.drawable.star_big_off) // Le placeholder
+                .error(android.R.drawable.stat_notify_error) // L'image en cas d'erreur
+                .build()
+
+        AsyncImage(
+            model = imageRequest,
             contentDescription = item.name,
             contentScale = ContentScale.Crop,
             alignment = Alignment.Center,

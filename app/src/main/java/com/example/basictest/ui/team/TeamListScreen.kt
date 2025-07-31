@@ -12,42 +12,19 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.basictest.R
 import com.example.basictest.domain.model.Team
 import com.example.basictest.ui.components.AnomalyListComponent
 import com.example.basictest.ui.components.AnomalyType
 import com.example.basictest.ui.components.AutoCompleteTextField
 import com.example.basictest.ui.theme.BasicTestTheme
-
-/**
- * Route for the team list screen.
- *
- * @param modifier Modifier
- * @param viewModel TeamListViewModel
- */
-@Composable
-fun TeamListRoute(
-    modifier: Modifier = Modifier,
-    viewModel: TeamListViewModel = hiltViewModel(),
-) {
-    val uiState by viewModel.uiState.collectAsState()
-    TeamListScreen(
-        uiState = uiState,
-        modifier = modifier,
-        actionItemSelected = { viewModel.handler((TeamListAction.LeagueSelected(it))) },
-        actionQueryChanged = { viewModel.handler(TeamListAction.QueryChanged(it)) },
-        actionClearClicked = { viewModel.handler(TeamListAction.QueryChanged("")) },
-    )
-}
+import kotlinx.collections.immutable.persistentListOf
 
 /**
  * Team list screen.
@@ -80,13 +57,13 @@ fun TeamListScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        when (uiState) {
-            is TeamListUIState.Success -> {
+        when (uiState.status) {
+            ScreenStatus.SUCCESS -> {
                 // Afficher la liste des équipes
                 TeamBadgeGrid(teams = uiState.teams, modifier = Modifier.fillMaxSize())
             }
 
-            is TeamListUIState.Loading -> {
+            ScreenStatus.LOADING -> {
                 // Afficher un indicateur de chargement
                 AnomalyListComponent(
                     anomalyType = AnomalyType.LOADING,
@@ -96,7 +73,7 @@ fun TeamListScreen(
                 )
             }
 
-            is TeamListUIState.EmptyData -> {
+            ScreenStatus.IDLE -> {
                 // Afficher un composant indiquant que la liste est vide
                 AnomalyListComponent(
                     anomalyType = AnomalyType.EMPTY,
@@ -109,7 +86,7 @@ fun TeamListScreen(
                 )
             }
 
-            is TeamListUIState.Error -> {
+            ScreenStatus.ERROR -> {
                 // Afficher un message d'erreur
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -119,12 +96,11 @@ fun TeamListScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
                     ) {
-                        // Message Text
                         AnomalyListComponent(
                             anomalyType = AnomalyType.ERROR,
                             message =
                                 (
-                                    uiState.message
+                                    uiState.errorMessage
                                         ?: stringResource(id = R.string.error_message)
                                 ) + "\n\n" +
                                     stringResource(
@@ -143,14 +119,20 @@ fun TeamListScreen(
     }
 }
 
+/**
+ * Preview for the TeamListScreen with a success state.
+ */
 @Preview("Success", "state")
 @Composable
 private fun TeamListScreenSuccessPreview() {
     BasicTestTheme {
-        TeamListScreen(
-            TeamListUIState.Success(
+        val uiState =
+            TeamListUIState(
+                query = "French Ligue 1",
+                suggestions = persistentListOf(),
+                status = ScreenStatus.SUCCESS,
                 teams =
-                    listOf(
+                    persistentListOf(
                         Team(
                             "1",
                             name = "Paris Saint-Germain",
@@ -187,33 +169,67 @@ private fun TeamListScreenSuccessPreview() {
                             strBadge = "https://www.thesportsdb.com/images/media/team/badge/ypturx1473504818.png",
                         ),
                     ),
-                query = "French Ligue 1",
-                suggestions = emptyList(),
-            ),
-        )
+                leagues = persistentListOf(),
+                errorMessage = null,
+            )
+        TeamListScreen(uiState = uiState)
     }
 }
 
+/**
+ * Preview for the loading state of the TeamListScreen.
+ */
 @Preview("Loading", "state")
 @Composable
 private fun TeamListScreenLoadingPreview() {
     BasicTestTheme {
-        TeamListScreen(TeamListUIState.Loading())
+        val uiState =
+            TeamListUIState(
+                query = "",
+                suggestions = persistentListOf(),
+                status = ScreenStatus.LOADING,
+                teams = persistentListOf(),
+                errorMessage = null,
+            )
+        TeamListScreen(uiState)
     }
 }
 
+/**
+ * Preview for the empty data state of the TeamListScreen.
+ */
 @Preview("Empty Data", "state")
 @Composable
 private fun TeamListScreenEmptyDataPreview() {
     BasicTestTheme {
-        TeamListScreen(TeamListUIState.EmptyData())
+        // Simulate empty data state
+        val uiState =
+            TeamListUIState(
+                query = "",
+                suggestions = persistentListOf(),
+                status = ScreenStatus.IDLE,
+                teams = persistentListOf(),
+                errorMessage = null,
+            )
+        TeamListScreen(uiState)
     }
 }
 
+/**
+ * Preview for the error state of the TeamListScreen.
+ */
 @Preview("Error", "state")
 @Composable
 private fun TeamListScreenErrorPreview() {
     BasicTestTheme {
-        TeamListScreen(TeamListUIState.Error("Error message"))
+        val uiState =
+            TeamListUIState(
+                query = "",
+                suggestions = persistentListOf(),
+                status = ScreenStatus.ERROR,
+                teams = persistentListOf(),
+                errorMessage = "An error occurred while fetching the teams.",
+            )
+        TeamListScreen(uiState)
     }
 }

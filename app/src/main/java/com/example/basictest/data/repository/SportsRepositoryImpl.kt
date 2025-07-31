@@ -1,9 +1,9 @@
 package com.example.basictest.data.repository
 
-import com.example.basictest.data.mapper.LeagueMapper
-import com.example.basictest.data.mapper.TeamMapper
+import com.example.basictest.data.mapper.toDomain
+import com.example.basictest.data.model.LeagueDto
+import com.example.basictest.data.model.TeamDto
 import com.example.basictest.data.remote.SportsApi
-import com.example.basictest.domain.model.Team
 import com.example.basictest.domain.repository.SportsRepository
 
 class SportsRepositoryImpl(
@@ -12,12 +12,12 @@ class SportsRepositoryImpl(
     override suspend fun getAllLeagues() =
         runCatching {
             val response = api.getAllLeagues()
-            response.leagues.map(LeagueMapper::fromDto)
+            response.leagues.map(LeagueDto::toDomain)
         }
 
     override suspend fun getTeamsByLeague(leagueName: String) =
         runCatching {
             val response = api.getTeamsByLeague(leagueName)
-            response.teams.map(TeamMapper::fromDto)
+            response.teams.map(TeamDto::toDomain)
         }
 }

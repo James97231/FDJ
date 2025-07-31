@@ -17,12 +17,14 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
+    val apiKey = 123 // 50130162
+
     @Provides
     @Singleton
     fun provideRetrofit(): Retrofit =
         Retrofit
             .Builder()
-            .baseUrl("https://www.thesportsdb.com/api/v1/json/50130162/")
+            .baseUrl("https://www.thesportsdb.com/api/v1/json/$apiKey/")
             .client(OkHttpClient.Builder().build())
             .addConverterFactory(GsonConverterFactory.create())
             .build()

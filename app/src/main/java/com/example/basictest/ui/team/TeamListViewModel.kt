@@ -34,14 +34,11 @@ class TeamListViewModel
             fetchLeagues()
         }
 
-        fun handler(action: TeamListAction) {
-            when (action) {
-                is TeamListAction.QueryChanged -> onQueryChanged(action.newQuery)
-                is TeamListAction.LeagueSelected -> onLeagueSelected(action.leagueName)
-            }
-        }
-
-        private fun onQueryChanged(newQuery: String) {
+        /**
+         * Handles the query change event.
+         * Updates the UI state with the new query and filters suggestions based on it.
+         */
+        val onQueryChanged: (String) -> Unit = { newQuery ->
             _uiState.update { currentState ->
                 val newSuggestions =
                     if (newQuery.isBlank()) {
@@ -61,7 +58,17 @@ class TeamListViewModel
             }
         }
 
-        private fun onLeagueSelected(leagueName: String) {
+        /**
+         * Handles the clear button click event.
+         * Resets the query and suggestions, and clears the teams list.
+         */
+        val onClearClicked: () -> Unit = { onQueryChanged("") }
+
+        /**
+         * Handles the league selection event.
+         * Cancels any ongoing search job and fetches teams for the selected league.
+         */
+        val onLeagueSelected: (String) -> Unit = { leagueName ->
             searchJob?.cancel()
             searchJob =
                 viewModelScope.launch(ioDispatcher) {
@@ -72,7 +79,7 @@ class TeamListViewModel
                             _uiState.update {
                                 it.copy(
                                     teams = teams.toImmutableList(),
-                                    status = if (teams.isEmpty()) ScreenStatus.IDLE else ScreenStatus.SUCCESS, // ou un état Empty
+                                    status = if (teams.isEmpty()) ScreenStatus.IDLE else ScreenStatus.SUCCESS,
                                 )
                             }
                         }.onFailure { error ->

@@ -16,17 +16,3 @@ data class TeamListUIState(
     val status: ScreenStatus = ScreenStatus.IDLE,
     val errorMessage: String? = null,
 )
-
-/**
- * Sealed interface representing different UI events for the Team List screen.
- * Use to communicate between UI and Viewmodel.
- */
-sealed class TeamListAction {
-    data class QueryChanged(
-        val newQuery: String,
-    ) : TeamListAction()
-
-    data class LeagueSelected(
-        val leagueName: String,
-    ) : TeamListAction()
-}

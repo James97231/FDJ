@@ -3,7 +3,6 @@ import com.example.basictest.domain.model.Team
 import com.example.basictest.domain.usecase.GetAllLeaguesUseCase
 import com.example.basictest.domain.usecase.GetTeamsByLeagueUseCase
 import com.example.basictest.ui.team.ScreenStatus
-import com.example.basictest.ui.team.TeamListAction
 import com.example.basictest.ui.team.TeamListUIState
 import com.example.basictest.ui.team.TeamListViewModel
 import io.mockk.coEvery
@@ -99,7 +98,7 @@ class TeamListViewModelTest {
             coEvery { getTeamsByLeagueUseCase(leagueName) } returns Result.success(teams)
 
             // WHEN: L'action de sélection d'une ligue est envoyée
-            viewModel.handler(TeamListAction.LeagueSelected(leagueName))
+            viewModel.onLeagueSelected(leagueName)
 
             // THEN: L'état doit être mis à jour avec les équipes, le nom de la ligue et le statut SUCCESS
             val expectedState =
@@ -124,7 +123,7 @@ class TeamListViewModelTest {
             val newQuery = "League"
 
             // WHEN: L'action de changement de query est envoyée
-            viewModel.handler(TeamListAction.QueryChanged(newQuery))
+            viewModel.onQueryChanged(newQuery)
 
             // THEN: L'état doit contenir la nouvelle query et les suggestions filtrées
             val expectedState =
@@ -143,19 +142,20 @@ class TeamListViewModelTest {
             // GIVEN: Le ViewModel est initialisé avec des ligues et un état de succès (équipes affichées)
             val leagues = listOf(League("1", "French Ligue 1"), League("2", "English Premier League"))
             coEvery { getAllLeaguesUseCase() } returns Result.success(leagues)
-            coEvery { getTeamsByLeagueUseCase("French Ligue 1") } returns Result.success(
-                listOf(Team("1", "PSG", "badge_url")),
-            )
+            coEvery { getTeamsByLeagueUseCase("French Ligue 1") } returns
+                Result.success(
+                    listOf(Team("1", "PSG", "badge_url")),
+                )
             viewModel = TeamListViewModel(getAllLeaguesUseCase, getTeamsByLeagueUseCase, testDispatcher)
 
             // Simule la sélection d'une ligue pour mettre l'état en SUCCESS avec des équipes
-            viewModel.handler(TeamListAction.LeagueSelected("French Ligue 1"))
+            viewModel.onLeagueSelected("French Ligue 1")
             assertEquals(ScreenStatus.SUCCESS, viewModel.uiState.value.status)
             assertEquals(1, viewModel.uiState.value.teams.size)
 
             // WHEN: L'action de changement de query est envoyée
             val newQuery = "Eng"
-            viewModel.handler(TeamListAction.QueryChanged(newQuery))
+            viewModel.onQueryChanged(newQuery)
 
             // THEN: L'état doit refléter la nouvelle query, les suggestions filtrées, et la liste des équipes doit être vide
             val expectedState =

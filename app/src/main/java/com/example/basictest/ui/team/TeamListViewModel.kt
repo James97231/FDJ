@@ -25,97 +25,6 @@ class TeamListViewModel
         private val getTeamsByLeagueUseCase: GetTeamsByLeagueUseCase,
         @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     ) : ViewModel() {
-    /*private val leagues = MutableStateFlow<List<String>>(emptyList())
-    private val teams = MutableStateFlow<List<Team>>(emptyList())
-
-    private var queryJob: Job? = null
-
-    var query = ""
-
-    var suggestions = emptyList<String>()
-
-    var uiState = MutableStateFlow<TeamListUIState>(TeamListUIState.EmptyData())
-        private set
-
-
-    private val _uiState = MutableStateFlow(TeamListUIState2())
-    val uiState2: StateFlow<TeamListUIState2> = _uiState.asStateFlow()
-
-    init {
-        viewModelScope.launch(ioDispatcher) {
-            fetchLeagues()
-        }
-    }
-
-    fun handler(action: TeamListAction) {
-        when (action) {
-            is TeamListAction.QueryChanged -> {
-                queryJob?.cancel()
-                queryJob = viewModelScope.launch(ioDispatcher) { onQueryChanged(action.newQuery) }
-            }
-
-            is TeamListAction.LeagueSelected ->
-                viewModelScope.launch(ioDispatcher) {
-                    onLeagueSelected(
-                        action.leagueName,
-                    )
-                }
-        }
-    }
-
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    suspend fun fetchLeagues() {
-        uiState.value = TeamListUIState.Loading(query = query, suggestions = emptyList())
-        getAllLeaguesUseCase()
-            .onSuccess { leagues ->
-                this@TeamListViewModel.leagues.value = leagues.map { it.name }
-                uiState.value =
-                    TeamListUIState.EmptyData(query = query, suggestions = emptyList())
-            }.onFailure {
-                uiState.value = TeamListUIState.Error(it.message)
-            }
-    }
-
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    suspend fun fetchTeamsByLeague(leagueName: String) {
-        uiState.value = TeamListUIState.Loading(query = leagueName, suggestions = emptyList())
-        getTeamsByLeagueUseCase(leagueName)
-            .onSuccess {
-                teams.value = it
-                uiState.value = TeamListUIState.Success(teams.value, leagueName, emptyList())
-            }.onFailure {
-                uiState.value =
-                    TeamListUIState.Error(
-                        it.message,
-                        query = leagueName,
-                        suggestions = emptyList(),
-                    )
-            }
-    }
-
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    fun onQueryChanged(newQuery: String) {
-        if (query == newQuery) return
-        query = newQuery
-
-        suggestions =
-            leagues.value
-                .filter { it.contains(newQuery, ignoreCase = true) }
-                .take(5)
-
-        if (queryJob?.isActive == false) return
-
-        uiState.value =
-            TeamListUIState.EmptyData(query = query, suggestions = suggestions)
-    }
-
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    suspend fun onLeagueSelected(leagueName: String) {
-        query = leagueName
-        fetchTeamsByLeague(leagueName)
-    }
-*/
-
         private val _uiState = MutableStateFlow(TeamListUIState())
         val uiState: StateFlow<TeamListUIState> = _uiState.asStateFlow()
 
@@ -142,8 +51,13 @@ class TeamListViewModel
                             .filter { it.contains(newQuery, ignoreCase = true) }
                             .take(5)
                     }
-                // Utilisation de copy() pour une mise à jour immuable et atomique
-                currentState.copy(query = newQuery, suggestions = newSuggestions.toImmutableList())
+
+                currentState.copy(
+                    query = newQuery,
+                    suggestions = newSuggestions.toImmutableList(),
+                    teams = persistentListOf(),
+                    status = ScreenStatus.IDLE,
+                )
             }
         }
 

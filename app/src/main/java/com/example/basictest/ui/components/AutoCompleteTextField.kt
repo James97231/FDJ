@@ -33,11 +33,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.basictest.R
 import com.example.basictest.ui.theme.BasicTestTheme
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 
 @Composable
 fun AutoCompleteTextField(
     query: String,
-    suggestions: List<String>,
+    suggestions: ImmutableList<String>,
     placeholder: String,
     actionItemSelected: (String) -> Unit,
     actionQueryChanged: (String) -> Unit,
@@ -55,11 +57,10 @@ fun AutoCompleteTextField(
         modifier = modifier,
     ) {
         Column {
-            Log.e("AutoCompleteTextField", "data: ${query to suggestions} ")
+            Log.i("AutoCompleteTextField", "data: ${query to suggestions} ")
             TextField(
                 value = TextFieldValue(query, TextRange(query.length)),
                 onValueChange = {
-                    Log.e("AutoCompleteTextField", "onValueChange  Query:$query->${it.text}")
                     actionQueryChanged(it.text)
                 },
                 placeholder = { Text(placeholder) },
@@ -126,7 +127,7 @@ fun AutoCompleteTextField(
 fun AutoCompleteTextFieldPreview() {
     val leagues =
         remember {
-            listOf(
+            persistentListOf(
                 "French Ligue 1",
                 "English Premier League",
                 "Spanish La Liga",

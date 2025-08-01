@@ -23,13 +23,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.example.basictest.R
 import com.example.basictest.domain.model.Team
 import com.example.basictest.ui.theme.BasicTestTheme
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 
 @Composable
 fun TeamBadgeGrid(
-    teams: List<Team>,
+    teams: ImmutableList<Team>,
     modifier: Modifier = Modifier,
 ) {
     LazyVerticalGrid(
@@ -61,11 +62,9 @@ fun TeamBadgeItem(
         val imageRequest =
             ImageRequest
                 .Builder(LocalContext.current)
-                .data(item.strBadge) // L'URL de l'image
-                .crossfade(true) // <-- C'EST LA LIGNE MAGIQUE POUR L'ANIMATION !
-                .crossfade(50) // Optionnel: spécifier la durée de l'animation en millisecondes (ex: 300ms)
-                .placeholder(android.R.drawable.star_big_off) // Le placeholder
-                .error(android.R.drawable.stat_notify_error) // L'image en cas d'erreur
+                .data(item.strBadge)
+                .crossfade(true)
+                .error(android.R.drawable.stat_notify_error)
                 .build()
 
         AsyncImage(
@@ -96,7 +95,7 @@ fun TeamBadgeItem(
 private fun TeamBadgeGridPreview() {
     val teams =
         remember {
-            listOf(
+            persistentListOf(
                 Team(
                     id = "133703",
                     name = "Toulouse",
@@ -127,7 +126,6 @@ private fun TeamBadgeGridPreview() {
                     name = "Paris SG",
                     strBadge = "https://www.thesportsdb.com/images/media/team/badge/rwqrrq1473504808.png",
                 ),
-                // Ajoutez plus d'équipes ici
             )
         }
 

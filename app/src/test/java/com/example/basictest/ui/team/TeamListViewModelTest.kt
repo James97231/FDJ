@@ -136,4 +136,36 @@ class TeamListViewModelTest {
                 )
             assertEquals(expectedState, viewModel.uiState.value)
         }
+
+    @Test
+    fun `handler(QueryChanged) - after league selected - clears teams and updates query`() =
+        runTest {
+            // GIVEN: Le ViewModel est initialisé avec des ligues et un état de succès (équipes affichées)
+            val leagues = listOf(League("1", "French Ligue 1"), League("2", "English Premier League"))
+            coEvery { getAllLeaguesUseCase() } returns Result.success(leagues)
+            coEvery { getTeamsByLeagueUseCase("French Ligue 1") } returns Result.success(
+                listOf(Team("1", "PSG", "badge_url")),
+            )
+            viewModel = TeamListViewModel(getAllLeaguesUseCase, getTeamsByLeagueUseCase, testDispatcher)
+
+            // Simule la sélection d'une ligue pour mettre l'état en SUCCESS avec des équipes
+            viewModel.handler(TeamListAction.LeagueSelected("French Ligue 1"))
+            assertEquals(ScreenStatus.SUCCESS, viewModel.uiState.value.status)
+            assertEquals(1, viewModel.uiState.value.teams.size)
+
+            // WHEN: L'action de changement de query est envoyée
+            val newQuery = "Eng"
+            viewModel.handler(TeamListAction.QueryChanged(newQuery))
+
+            // THEN: L'état doit refléter la nouvelle query, les suggestions filtrées, et la liste des équipes doit être vide
+            val expectedState =
+                TeamListUIState(
+                    query = newQuery,
+                    suggestions = listOf("English Premier League").toImmutableList(),
+                    teams = persistentListOf(),
+                    leagues = listOf("French Ligue 1", "English Premier League").toImmutableList(),
+                    status = ScreenStatus.IDLE,
+                )
+            assertEquals(expectedState, viewModel.uiState.value)
+        }
 }
